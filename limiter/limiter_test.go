@@ -5,9 +5,11 @@ import (
 	"testing"
 )
 
+var fakeRepo = &InMemoryLimitRepo{}
+
 func TestAllowCall(t *testing.T) {
 	// given
-	limiter := NewLimiter()
+	limiter := NewLimiter(fakeRepo)
 	limiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
@@ -19,7 +21,7 @@ func TestAllowCall(t *testing.T) {
 
 func TestRefuseCall(t *testing.T) {
 	// given
-	limiter := NewLimiter()
+	limiter := NewLimiter(fakeRepo)
 	limiter.SetMaxCallsForClient("client_1", 0)
 
 	// when

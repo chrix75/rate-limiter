@@ -1,7 +1,12 @@
 package limiter
 
+type LimitRepository interface {
+	AddClient(clientName string, maxCalls int)
+	Get(clientName string) int
+}
+
 type RateLimiter struct {
-	limits map[string]int
+	limits LimitRepository
 }
 
 func (l *RateLimiter) SetMaxCallsForClient(clientName string, max int) {
@@ -13,15 +18,15 @@ func (l *RateLimiter) SetMaxCallsForClient(clientName string, max int) {
 		panic("clientName cannot be empty")
 	}
 
-	l.limits[clientName] = max
+	l.limits.AddClient(clientName, max)
 }
 
 func (l *RateLimiter) Allow(clientName string) bool {
-	return l.limits[clientName] > 0
+	return l.limits.Get(clientName) > 0
 }
 
-func NewLimiter() *RateLimiter {
+func NewLimiter(limitRepo LimitRepository) *RateLimiter {
 	return &RateLimiter{
-		limits: make(map[string]int),
+		limits: limitRepo,
 	}
 }
