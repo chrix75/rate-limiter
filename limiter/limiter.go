@@ -2,7 +2,7 @@ package limiter
 
 type LimitRepository interface {
 	AddClient(clientName string, maxCalls int)
-	Get(clientName string) int
+	DecAndGet(clientName string) int
 }
 
 type RateLimiter struct {
@@ -22,7 +22,7 @@ func (l *RateLimiter) SetMaxCallsForClient(clientName string, max int) {
 }
 
 func (l *RateLimiter) Allow(clientName string) bool {
-	return l.limits.Get(clientName) > 0
+	return l.limits.DecAndGet(clientName) > 0
 }
 
 func NewLimiter(limitRepo LimitRepository) *RateLimiter {

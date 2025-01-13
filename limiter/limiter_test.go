@@ -30,3 +30,16 @@ func TestRefuseCall(t *testing.T) {
 	// then
 	assert.False(t, allowed)
 }
+
+func TestDontAllowCallAnymore(t *testing.T) {
+	// given
+	limiter := NewLimiter(fakeRepo)
+	limiter.SetMaxCallsForClient("client_1", 1)
+	_ = limiter.Allow("client_1")
+
+	// when
+	allowed := limiter.Allow("client_1")
+
+	// then
+	assert.False(t, allowed)
+}
