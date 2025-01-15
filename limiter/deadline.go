@@ -3,13 +3,21 @@ package limiter
 import "time"
 
 type DayLimiter struct {
-	refTime time.Time
-	limiter *RateLimiter
-	limits  map[string]int
+	refTime        time.Time
+	limiter        *RateLimiter
+	timeBoxLimiter *TimeBoxedLimiter
+	limits         map[string]int
 }
 
 func (l *DayLimiter) SetMaxCallsForClient(clientName string, max int) {
-	l.limiter.SetMaxCallsForClient(clientName, max)
+	if l.limiter != nil {
+		l.limiter.SetMaxCallsForClient(clientName, max)
+	}
+
+	if l.timeBoxLimiter != nil {
+		l.timeBoxLimiter.SetMaxCallsForClient(clientName, max)
+	}
+
 	l.limits[clientName] = max
 }
 
@@ -19,7 +27,12 @@ func (l *DayLimiter) Allow(t time.Time, clientName string) bool {
 	if curDay.After(refDay) {
 		l.SetMaxCallsForClient(clientName, l.limits[clientName])
 	}
-	return l.limiter.Allow(clientName)
+
+	if l.limiter != nil {
+		return l.limiter.Allow(clientName)
+	}
+
+	return l.timeBoxLimiter.Allow(t, clientName)
 }
 
 func NewDayLimiter(refTime time.Time, limiter *RateLimiter) *DayLimiter {
@@ -27,5 +40,13 @@ func NewDayLimiter(refTime time.Time, limiter *RateLimiter) *DayLimiter {
 		limiter: limiter,
 		limits:  make(map[string]int),
 		refTime: refTime,
+	}
+}
+
+func NewDayLimiterWithTimeBox(limiter *TimeBoxedLimiter) *DayLimiter {
+	return &DayLimiter{
+		timeBoxLimiter: limiter,
+		limits:         make(map[string]int),
+		refTime:        limiter.refTime,
 	}
 }

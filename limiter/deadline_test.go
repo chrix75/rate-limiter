@@ -73,3 +73,21 @@ func TestRefuseCallAfterResetByDay(t *testing.T) {
 	// then
 	assert.False(t, allowed)
 }
+
+func TestInjectTimeBoxedDelimiter(t *testing.T) {
+	// given
+	limiter := NewLimiter(fakeRepo)
+
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+
+	timeboxLimiter := NewTimeBoxedLimiter(refTime, limiter, time.Hour)
+
+	dayLimiter := NewDayLimiterWithTimeBox(timeboxLimiter)
+	dayLimiter.SetMaxCallsForClient("client_1", 1)
+
+	// when
+	allowed := dayLimiter.Allow(refTime, "client_1")
+
+	// then
+	assert.True(t, allowed)
+}
