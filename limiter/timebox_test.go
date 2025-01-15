@@ -37,7 +37,7 @@ func TestRefuseCallInTimeBox(t *testing.T) {
 	assert.False(t, allowed)
 }
 
-func TestResetBucket(t *testing.T) {
+func TestResetBucketByTimeBox(t *testing.T) {
 	// given
 	limiter := NewLimiter(fakeRepo)
 
@@ -55,7 +55,7 @@ func TestResetBucket(t *testing.T) {
 	assert.True(t, allowed)
 }
 
-func TestRefuseCallAfterReset(t *testing.T) {
+func TestRefuseCallAfterResetByTimeBox(t *testing.T) {
 	// given
 	limiter := NewLimiter(fakeRepo)
 
