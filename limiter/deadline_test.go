@@ -8,14 +8,16 @@ import (
 
 func TestAllowCallInCurrentDay(t *testing.T) {
 	// given
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timer := NewConstantTimer(refTime)
+
 	limiter := NewLimiter(fakeRepo)
 
-	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	dayLimiter := NewDayLimiter(refTime, limiter)
+	dayLimiter := NewDayLimiter(timer, limiter)
 	dayLimiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
-	allowed := dayLimiter.Allow(refTime, "client_1")
+	allowed := dayLimiter.Allow("client_1")
 
 	// then
 	assert.True(t, allowed)
@@ -23,15 +25,17 @@ func TestAllowCallInCurrentDay(t *testing.T) {
 
 func TestRefuseCallInCurrentDay(t *testing.T) {
 	// given
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timer := NewConstantTimer(refTime)
+
 	limiter := NewLimiter(fakeRepo)
 
-	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	dayLimiter := NewDayLimiter(refTime, limiter)
+	dayLimiter := NewDayLimiter(timer, limiter)
 	dayLimiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
-	_ = dayLimiter.Allow(refTime, "client_1")
-	allowed := dayLimiter.Allow(refTime, "client_1")
+	_ = dayLimiter.Allow("client_1")
+	allowed := dayLimiter.Allow("client_1")
 
 	// then
 	assert.False(t, allowed)
@@ -39,17 +43,20 @@ func TestRefuseCallInCurrentDay(t *testing.T) {
 
 func TestResetBucketByDay(t *testing.T) {
 	// given
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timer := NewDynamicTimer(refTime)
+
 	limiter := NewLimiter(fakeRepo)
 
-	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	dayLimiter := NewDayLimiter(refTime, limiter)
+	dayLimiter := NewDayLimiter(timer, limiter)
 	dayLimiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
-	_ = dayLimiter.Allow(refTime, "client_1")
+	_ = dayLimiter.Allow("client_1")
 
 	nextCallTime := refTime.Add(24 * time.Hour)
-	allowed := dayLimiter.Allow(nextCallTime, "client_1")
+	timer.T = nextCallTime
+	allowed := dayLimiter.Allow("client_1")
 
 	// then
 	assert.True(t, allowed)
@@ -57,18 +64,22 @@ func TestResetBucketByDay(t *testing.T) {
 
 func TestRefuseCallAfterResetByDay(t *testing.T) {
 	// given
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timer := NewDynamicTimer(refTime)
+
 	limiter := NewLimiter(fakeRepo)
 
-	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	dayLimiter := NewDayLimiter(refTime, limiter)
+	dayLimiter := NewDayLimiter(timer, limiter)
 	dayLimiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
-	_ = dayLimiter.Allow(refTime, "client_1")
+	_ = dayLimiter.Allow("client_1")
 
 	nextCallTime := refTime.Add(time.Minute)
-	_ = dayLimiter.Allow(nextCallTime, "client_1")
-	allowed := dayLimiter.Allow(nextCallTime, "client_1")
+	timer.T = nextCallTime
+
+	_ = dayLimiter.Allow("client_1")
+	allowed := dayLimiter.Allow("client_1")
 
 	// then
 	assert.False(t, allowed)
@@ -76,17 +87,18 @@ func TestRefuseCallAfterResetByDay(t *testing.T) {
 
 func TestInjectTimeBoxedDelimiter(t *testing.T) {
 	// given
+	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timer := NewConstantTimer(refTime)
+
 	limiter := NewLimiter(fakeRepo)
 
-	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
+	timeboxLimiter := NewTimeBoxedLimiter(timer, limiter, time.Hour)
 
-	timeboxLimiter := NewTimeBoxedLimiter(refTime, limiter, time.Hour)
-
-	dayLimiter := NewDayLimiterWithTimeBox(timeboxLimiter)
+	dayLimiter := NewDayLimiter(timer, timeboxLimiter)
 	dayLimiter.SetMaxCallsForClient("client_1", 1)
 
 	// when
-	allowed := dayLimiter.Allow(refTime, "client_1")
+	allowed := dayLimiter.Allow("client_1")
 
 	// then
 	assert.True(t, allowed)

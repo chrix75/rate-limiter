@@ -5,11 +5,16 @@ type LimitRepository interface {
 	DecAndGet(clientName string) int
 }
 
-type RateLimiter struct {
+type RateLimiter interface {
+	SetMaxCallsForClient(clientName string, max int)
+	Allow(clientName string) bool
+}
+
+type CounterLimiter struct {
 	limits LimitRepository
 }
 
-func (l *RateLimiter) SetMaxCallsForClient(clientName string, max int) {
+func (l *CounterLimiter) SetMaxCallsForClient(clientName string, max int) {
 	if max < 0 {
 		panic("max cannot be negative")
 	}
@@ -21,12 +26,12 @@ func (l *RateLimiter) SetMaxCallsForClient(clientName string, max int) {
 	l.limits.AddClient(clientName, max)
 }
 
-func (l *RateLimiter) Allow(clientName string) bool {
+func (l *CounterLimiter) Allow(clientName string) bool {
 	return l.limits.DecAndGet(clientName) > 0
 }
 
-func NewLimiter(limitRepo LimitRepository) *RateLimiter {
-	return &RateLimiter{
+func NewLimiter(limitRepo LimitRepository) *CounterLimiter {
+	return &CounterLimiter{
 		limits: limitRepo,
 	}
 }
