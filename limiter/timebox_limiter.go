@@ -4,7 +4,8 @@ import "time"
 
 type TimeBoxedLimiter struct {
 	refTime time.Time
-	limiter *RateLimiter
+	timer   Timer
+	limiter RateLimiter
 	period  time.Duration
 	limits  map[string]int
 }
@@ -14,7 +15,8 @@ func (l *TimeBoxedLimiter) SetMaxCallsForClient(clientName string, max int) {
 	l.limits[clientName] = max
 }
 
-func (l *TimeBoxedLimiter) Allow(t time.Time, clientName string) bool {
+func (l *TimeBoxedLimiter) Allow(clientName string) bool {
+	t := l.timer.Now()
 	elapseTime := t.Sub(l.refTime)
 	if elapseTime >= l.period {
 		limit := l.limits[clientName]
@@ -24,9 +26,11 @@ func (l *TimeBoxedLimiter) Allow(t time.Time, clientName string) bool {
 	return l.limiter.Allow(clientName)
 }
 
-func NewTimeBoxedLimiter(refTime time.Time, limiter *RateLimiter, period time.Duration) *TimeBoxedLimiter {
+func NewTimeBoxedLimiter(timer Timer, limiter *CounterLimiter, period time.Duration) *TimeBoxedLimiter {
+	now := timer.Now()
 	return &TimeBoxedLimiter{
-		refTime: refTime,
+		refTime: now,
+		timer:   timer,
 		limiter: limiter,
 		period:  period,
 		limits:  make(map[string]int),
