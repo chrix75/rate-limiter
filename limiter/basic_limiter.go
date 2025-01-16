@@ -1,10 +1,5 @@
 package limiter
 
-type LimitRepository interface {
-	AddClient(clientName string, maxCalls int)
-	DecAndGet(clientName string) int
-}
-
 type RateLimiter interface {
 	SetMaxCallsForClient(clientName string, max int)
 	Allow(clientName string) bool
