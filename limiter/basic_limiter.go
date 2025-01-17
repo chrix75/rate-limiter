@@ -25,7 +25,7 @@ func (l *CounterLimiter) Allow(clientName string) bool {
 	return l.limits.DecAndGet(clientName) > 0
 }
 
-func NewLimiter(limitRepo LimitRepository) *CounterLimiter {
+func NewCounterLimiter(limitRepo LimitRepository) *CounterLimiter {
 	return &CounterLimiter{
 		limits: limitRepo,
 	}

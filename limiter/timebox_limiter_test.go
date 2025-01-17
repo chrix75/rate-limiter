@@ -10,7 +10,7 @@ func TestAllowCallInTimeBox(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	timer := NewConstantTimer(refTime)
-	limiter := NewLimiter(fakeRepo)
+	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
 	timeBoxedLimiter.SetMaxCallsForClient("client_1", 1)
@@ -26,7 +26,7 @@ func TestRefuseCallInTimeBox(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	timer := NewConstantTimer(refTime)
-	limiter := NewLimiter(fakeRepo)
+	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
 	timeBoxedLimiter.SetMaxCallsForClient("client_1", 1)
@@ -44,7 +44,7 @@ func TestResetBucketByTimeBox(t *testing.T) {
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	timer := NewDynamicTimer(refTime)
 
-	limiter := NewLimiter(fakeRepo)
+	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
 	timeBoxedLimiter.SetMaxCallsForClient("client_1", 1)
@@ -65,7 +65,7 @@ func TestRefuseCallAfterResetByTimeBox(t *testing.T) {
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
 	timer := NewDynamicTimer(refTime)
 
-	limiter := NewLimiter(fakeRepo)
+	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
 	timeBoxedLimiter.SetMaxCallsForClient("client_1", 1)
