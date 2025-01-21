@@ -2,6 +2,7 @@ package limiter
 
 import "time"
 
+// Timer defines an interface for obtaining the current time.
 type Timer interface {
 	Now() time.Time
 }

@@ -2,6 +2,8 @@ package limiter
 
 import "time"
 
+// TimeBoxedLimiter implements rate limiting with a specified time window per client.
+// It uses a Timer to reference the current time and resets limits after the set period.
 type TimeBoxedLimiter struct {
 	refTime time.Time
 	timer   Timer
@@ -10,11 +12,14 @@ type TimeBoxedLimiter struct {
 	limits  map[string]int
 }
 
+// SetMaxCallsForClient sets the maximum number of allowed calls for a specific client within the time box period.
 func (l *TimeBoxedLimiter) SetMaxCallsForClient(clientName string, max int) {
 	l.limiter.SetMaxCallsForClient(clientName, max)
 	l.limits[clientName] = max
 }
 
+// Allow determines if the specified client is allowed to proceed based on time-boxed rate limiting rules.
+// Resets the client's limit if the set time box period has elapsed.
 func (l *TimeBoxedLimiter) Allow(clientName string) bool {
 	t := l.timer.Now()
 	elapseTime := t.Sub(l.refTime)

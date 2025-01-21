@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var repo = &InMemoryLimitRepo{}
+var repo = &InMemoryLimitRepository{}
 
 func TestAllowCall(t *testing.T) {
 	// given
