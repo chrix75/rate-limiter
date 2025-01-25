@@ -7,16 +7,16 @@ type Timer interface {
 	Now() time.Time
 }
 
-type ConstantTimer struct {
+type FixedValueTimer struct {
 	t time.Time
 }
 
-func (t ConstantTimer) Now() time.Time {
+func (t FixedValueTimer) Now() time.Time {
 	return t.t
 }
 
-func NewConstantTimer(t time.Time) ConstantTimer {
-	return ConstantTimer{t: t}
+func NewConstantTimer(t time.Time) FixedValueTimer {
+	return FixedValueTimer{t: t}
 }
 
 type DynamicTimer struct {
