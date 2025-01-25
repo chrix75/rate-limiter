@@ -9,7 +9,7 @@ import (
 func TestAllowCallInCurrentDay(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	timer := NewConstantTimer(refTime)
+	timer := NewFixedValueTimer(refTime)
 
 	limiter := NewCounterLimiter(repo)
 
@@ -26,7 +26,7 @@ func TestAllowCallInCurrentDay(t *testing.T) {
 func TestRefuseCallInCurrentDay(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	timer := NewConstantTimer(refTime)
+	timer := NewFixedValueTimer(refTime)
 
 	limiter := NewCounterLimiter(repo)
 
@@ -88,7 +88,7 @@ func TestRefuseCallAfterResetByDay(t *testing.T) {
 func TestInjectTimeBoxedDelimiter(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	timer := NewConstantTimer(refTime)
+	timer := NewFixedValueTimer(refTime)
 
 	limiter := NewCounterLimiter(repo)
 

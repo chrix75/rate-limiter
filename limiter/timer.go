@@ -15,7 +15,7 @@ func (t FixedValueTimer) Now() time.Time {
 	return t.t
 }
 
-func NewConstantTimer(t time.Time) FixedValueTimer {
+func NewFixedValueTimer(t time.Time) FixedValueTimer {
 	return FixedValueTimer{t: t}
 }
 

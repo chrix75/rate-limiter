@@ -9,7 +9,7 @@ import (
 func TestAllowCallInTimeBox(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	timer := NewConstantTimer(refTime)
+	timer := NewFixedValueTimer(refTime)
 	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
@@ -25,7 +25,7 @@ func TestAllowCallInTimeBox(t *testing.T) {
 func TestRefuseCallInTimeBox(t *testing.T) {
 	// given
 	refTime := time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC)
-	timer := NewConstantTimer(refTime)
+	timer := NewFixedValueTimer(refTime)
 	limiter := NewCounterLimiter(repo)
 
 	timeBoxedLimiter := NewTimeBoxedLimiter(timer, limiter, time.Minute)
